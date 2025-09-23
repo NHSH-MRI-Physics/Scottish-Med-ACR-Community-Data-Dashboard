@@ -4,7 +4,7 @@ import plotly.express as px
 from scipy import stats
 import pandas as pd
 
-st.title("Scottish Med ACR Community Data Dashboard")
+st.title("Scottish Medium ACR Community Data Dashboard")
 st.markdown("""
 This page has the raw data used in the plots on the homepage.
 """)

@@ -3,7 +3,7 @@ from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 from scipy import stats
 import pandas as pd
-st.set_page_config(initial_sidebar_state='collapsed',page_title="Scottish Med ACR Community Dashboard")
+st.set_page_config(initial_sidebar_state='collapsed',page_title="Scottish Medium ACR Community Dashboard")
 
 st.title("Scottish Med ACR Community Data Dashboard")
 st.markdown("""
