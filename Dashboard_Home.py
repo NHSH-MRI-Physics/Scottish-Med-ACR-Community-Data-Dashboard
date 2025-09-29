@@ -101,14 +101,14 @@ st.divider()
 st.subheader("Spatial Resolution (Contrast Response)")
 option = st.selectbox("Choose a Resolution grid:", ["1.1mm", "1.0mm", "0.9mm", "0.8mm"])
 if option == "1.1mm":
-    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Horizontal","1.1mm grid Resolution","1.1mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Vertical","1.1mm grid Resolution","1.1mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Horizontal","1.1mm grid Resolution Horizontal","1.1mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Vertical","1.1mm grid Resolution Vertical","1.1mm grid Resolution (%)"))
 if option == "1.0mm":
-    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Horizontal","1.0mm grid Resolution","1.0mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Vertical","1.0mm grid Resolution","1.0mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Horizontal","1.0mm grid Resolution Horizontal","1.0mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Vertical","1.0mm grid Resolution Vertical","1.0mm grid Resolution (%)"))
 if option == "0.9mm":
-    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Horizontal","0.9mm grid Resolution","0.9mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Vertical","0.9mm grid Resolution","0.9mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Horizontal","0.9mm grid Resolution Horizontal","0.9mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Vertical","0.9mm grid Resolution Vertical","0.9mm grid Resolution (%)"))
 if option == "0.8mm":
-    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Horizontal","0.8mm grid Resolution","0.8mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Vertical","0.8mm grid Resolution","0.8mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Horizontal","0.8mm grid Resolution Horizontal","0.8mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Vertical","0.8mm grid Resolution Vertical","0.8mm grid Resolution (%)"))
