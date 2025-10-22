@@ -33,6 +33,8 @@ if df.empty:
 def MakePlot(x,y,title,AxisTitle):
     filtered_df = df[df[y] != "Not Run"]
     filtered_df[y] = pd.to_numeric(filtered_df[y], errors='coerce')
+    filtered_df[x] = pd.to_datetime(filtered_df[x], errors='coerce')
+
     fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence"])
     fig.update_xaxes(title_text="Scan Date")
     fig.update_yaxes(title_text=AxisTitle)
