@@ -11,7 +11,9 @@ This dashboard presents data collected from scottish centers using a medium ACR 
 
 Filters for the data can be found on the sidear (arrow the top left). You can view the raw data via the "View Rawdata" link also in the sidebar.
 """)
-conn = st.connection("gsheets", type=GSheetsConnection,ttl=0)
+st.cache_data.clear()
+st.cache_resource.clear()
+conn = st.connection("gsheets", type=GSheetsConnection,ttl=1)
 df = conn.read()
 
 
