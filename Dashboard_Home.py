@@ -20,7 +20,7 @@ ScannerManufacturer = st.sidebar.multiselect('Select Scanner Manufacturer', df['
 Institution = st.sidebar.multiselect('Select Institution', df['Institution'].unique(), default=df['Institution'].unique())
 ScannerModel = st.sidebar.multiselect('Select Scanner Model', df['ScannerModel'].unique(), default=df['ScannerModel'].unique())
 FieldStrength = st.sidebar.multiselect('Select Field Strength', df['FieldStrength'].unique(), default=df['FieldStrength'].unique())
-st.sidebar.markdown("**Version:** 1.0 Beta")
+st.sidebar.markdown("**Version:** 1.1 Beta")
 #st.sidebar.page_link("pages/Rawdata.py", label="Go to Raw Data")
 
 df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))]
