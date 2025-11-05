@@ -15,6 +15,7 @@ st.cache_data.clear()
 st.cache_resource.clear()
 conn = st.connection("gsheets", type=GSheetsConnection,ttl=1)
 df = conn.read()
+df = df.fillna(value="Not Provided")
 
 
 st.sidebar.title('Filters')
@@ -25,7 +26,7 @@ FieldStrength = st.sidebar.multiselect('Select Field Strength', df['FieldStrengt
 st.sidebar.markdown("**Version:** 1.1 Beta")
 #st.sidebar.page_link("pages/Rawdata.py", label="Go to Raw Data")
 
-df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))]
+df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))& (df['FieldStrength'].isin(FieldStrength))]
 #st.write(df.head())
 
 if df.empty:
@@ -37,7 +38,7 @@ def MakePlot(x,y,title,AxisTitle):
     filtered_df[y] = pd.to_numeric(filtered_df[y], errors='coerce')
     filtered_df[x] = pd.to_datetime(filtered_df[x], errors='coerce')
 
-    fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence"])
+    fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence","FieldStrength"])
     fig.update_xaxes(title_text="Scan Date")
     fig.update_yaxes(title_text=AxisTitle)
     avg = filtered_df[y].mean()
