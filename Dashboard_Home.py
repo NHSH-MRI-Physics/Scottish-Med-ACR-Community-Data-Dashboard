@@ -3,6 +3,8 @@ from streamlit_gsheets import GSheetsConnection
 import plotly.express as px
 from scipy import stats
 import pandas as pd
+import requests
+import xmltodict
 st.set_page_config(initial_sidebar_state='collapsed',page_title="Scottish Medium ACR Community Dashboard")
 
 st.title("Scottish Med ACR Community Data Dashboard")
@@ -17,6 +19,10 @@ conn = st.connection("gsheets", type=GSheetsConnection,ttl=1)
 df = conn.read()
 df = df.fillna(value="Not Provided")
 
+XMLurl = "https://raw.githubusercontent.com/NHSH-MRI-Physics/Scottish-Medium-ACR-Analysis-Framework/refs/heads/main/ToleranceTable/ToleranceTable_80mmPeg.xml"
+response = requests.get(XMLurl)
+ToleranceTable = xmltodict.parse(response.content)['ToleranceTable']['Module']
+print(ToleranceTable)
 
 st.sidebar.title('Filters')
 ScannerManufacturer = st.sidebar.multiselect('Select Scanner Manufacturer', df['ScannerManufacturer'].unique(), default=df['ScannerManufacturer'].unique())
@@ -29,14 +35,29 @@ st.sidebar.markdown("**Version:** 1.1 Beta")
 df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))& (df['FieldStrength'].isin(FieldStrength))]
 #st.write(df.head())
 
+
 if df.empty:
     st.warning("No data available for the selected filters.")
     st.stop()
 
-def MakePlot(x,y,title,AxisTitle):
+def MakePlot(x,y,title,AxisTitle,module=None,test=None):
+    tol_low = None
+    tol_high = None
+    if module != None and test != None:
+        for mod in ToleranceTable:
+            if mod['@name'] == module:
+                for t in mod['Test']:
+                    if t['@name'] == test:
+                        if '@Min' in t:
+                            tol_low = float(t['@Min'])
+                        if '@Max' in t:
+                            tol_high = float(t['@Max'])
+                        break
+    print(tol_low,tol_high)
+
     filtered_df = df[df[y] != "Not Run"]
     filtered_df[y] = pd.to_numeric(filtered_df[y], errors='coerce')
-    filtered_df[x] = pd.to_datetime(filtered_df[x], errors='coerce')
+    filtered_df[x] = pd.to_datetime(filtered_df[x], errors='coerce',dayfirst=True)
 
     fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence","FieldStrength"])
     fig.update_xaxes(title_text="Scan Date")
@@ -84,7 +105,7 @@ st.plotly_chart(MakePlot("DateScanned","SliceThickness","","Slice Thickness (mm)
 
 st.divider()
 st.subheader("Uniformity")
-st.plotly_chart(MakePlot("DateScanned","Uniformity","","Uniformity (%)"))
+st.plotly_chart(MakePlot("DateScanned","Uniformity","","Uniformity (%)","Uniformity","ACRMethod"))
 
 st.divider()
 st.subheader("Ghosting")
