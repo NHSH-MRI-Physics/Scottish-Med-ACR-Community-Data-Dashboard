@@ -22,7 +22,7 @@ df = df.fillna(value="Not Provided")
 XMLurl = "https://raw.githubusercontent.com/NHSH-MRI-Physics/Scottish-Medium-ACR-Analysis-Framework/refs/heads/main/ToleranceTable/ToleranceTable_80mmPeg.xml"
 response = requests.get(XMLurl)
 ToleranceTable = xmltodict.parse(response.content)['ToleranceTable']['Module']
-print(ToleranceTable)
+#print(ToleranceTable)
 
 st.sidebar.title('Filters')
 ScannerManufacturer = st.sidebar.multiselect('Select Scanner Manufacturer', df['ScannerManufacturer'].unique(), default=df['ScannerManufacturer'].unique())
@@ -41,19 +41,37 @@ if df.empty:
     st.stop()
 
 def MakePlot(x,y,title,AxisTitle,module=None,test=None):
+
+    #print(y,title)
     tol_low = None
     tol_high = None
-    if module != None and test != None:
+    if module != None:
         for mod in ToleranceTable:
             if mod['@name'] == module:
+                TestCount = 1
                 for t in mod['Test']:
-                    if t['@name'] == test:
-                        if '@Min' in t:
-                            tol_low = float(t['@Min'])
-                        if '@Max' in t:
-                            tol_high = float(t['@Max'])
-                        break
-    print(tol_low,tol_high)
+                    if '@name' in t:
+                        TestCount+=1
+                if TestCount > 1:
+                    for t in mod['Test']:
+                        if t['@name'] == test:
+                            if '@Min' in t:
+                                tol_low = float(t['@Min'])
+                            if '@Max' in t:
+                                tol_high = float(t['@Max'])
+                            break
+                if TestCount == 1:
+                    t = mod['Test']
+                    if '@Min' in t:
+                        tol_low = float(t['@Min'])
+                    if '@Max' in t:
+                        tol_high = float(t['@Max'])
+
+    if module == "Geometric Accuracy":
+        tol_low-=80.0
+        tol_high-=80.0
+
+    #print(y,module,test,tol_low,tol_high)
 
     filtered_df = df[df[y] != "Not Run"]
     filtered_df[y] = pd.to_numeric(filtered_df[y], errors='coerce')
@@ -88,20 +106,39 @@ def MakePlot(x,y,title,AxisTitle,module=None,test=None):
         annotation_text=f"95% Confidence Interval: {conf_int[1]:.2f}",
         annotation_position="top right"
     )
+
+    if tol_low != None:
+        fig.add_hline(
+            y=tol_low,
+            #line_dash="longdash",
+            line_color="green",
+            annotation_text=f"Tolerance Lower: {tol_low:.2f}",
+            annotation_position="bottom right"
+        )
+    if tol_high != None:
+        fig.add_hline(
+            y=tol_high,
+            #line_dash="longdash",
+            line_color="green",
+            annotation_text=f"Tolerance Upper: {tol_high:.2f}",
+            annotation_position="top right"
+        )
     return fig
 
 st.subheader("SNR")
 st.plotly_chart(MakePlot("DateScanned","SNR","SNR","SNR"))
 st.plotly_chart(MakePlot("DateScanned","SNRNormalised","Normalised SNR","Normalised SNR"))
 
+
 st.divider()
 st.subheader("Slice Position")
-st.plotly_chart(MakePlot("DateScanned","Slice1PositonError","Slice 1 Position Error","Slice 1 Position Error (mm)"))
-st.plotly_chart(MakePlot("DateScanned","Slice11PositionError","Slice 11 Position Error","Slice 11 Position Error (mm)"))
+st.plotly_chart(MakePlot("DateScanned","Slice1PositonError","Slice 1 Position Error","Slice 1 Position Error (mm)","Slice Position"))
+st.plotly_chart(MakePlot("DateScanned","Slice11PositionError","Slice 11 Position Error","Slice 11 Position Error (mm)","Slice Position"))
 
 st.divider()
 st.subheader("Slice Thickness")
-st.plotly_chart(MakePlot("DateScanned","SliceThickness","","Slice Thickness (mm)"))
+st.plotly_chart(MakePlot("DateScanned","SliceThickness","","Slice Thickness (mm)","Slice Thickness"))
+
 
 st.divider()
 st.subheader("Uniformity")
@@ -109,32 +146,32 @@ st.plotly_chart(MakePlot("DateScanned","Uniformity","","Uniformity (%)","Uniform
 
 st.divider()
 st.subheader("Ghosting")
-st.plotly_chart(MakePlot("DateScanned","Ghosting","","Ghosting (%)"))
+st.plotly_chart(MakePlot("DateScanned","Ghosting","","Ghosting (%)","Ghosting"))
 
 st.divider()
 st.subheader("Geometric Accuracy (MagNET Method)")
 option = st.selectbox("Choose horizontal or vertical distances:", ["Horizontal", "Vertical"])
 if option == "Horizontal":
-    st.plotly_chart(MakePlot("DateScanned","TopHorizontalDistances","Top Horizontal Distance Errors","Top Horizontal Distance Errors (mm)"))
-    st.plotly_chart(MakePlot("DateScanned","MiddleHorizontalDistances","Middle Horizontal Distance Errors","Middle Horizontal Distance Errors (mm)"))
-    st.plotly_chart(MakePlot("DateScanned","BottomHorizontalDistances","Bottom Horizontal Distance Errors","Bottom Horizontal Distance Errors (mm)"))
+    st.plotly_chart(MakePlot("DateScanned","TopHorizontalDistances","Top Horizontal Distance Errors","Top Horizontal Distance Errors (mm)","Geometric Accuracy","MagNetMethod"))
+    st.plotly_chart(MakePlot("DateScanned","MiddleHorizontalDistances","Middle Horizontal Distance Errors","Middle Horizontal Distance Errors (mm)","Geometric Accuracy","MagNetMethod"))
+    st.plotly_chart(MakePlot("DateScanned","BottomHorizontalDistances","Bottom Horizontal Distance Errors","Bottom Horizontal Distance Errors (mm)","Geometric Accuracy","MagNetMethod"))
 if option == "Vertical":
-    st.plotly_chart(MakePlot("DateScanned","LeftVerticalDistances","Left Vertical Distance Error","Left Vertical Distance Error (mm)"))
-    st.plotly_chart(MakePlot("DateScanned","MiddleVerticalDistances","Middle Vertical Distance Error","Middle Vertical Distance Error (mm)"))
-    st.plotly_chart(MakePlot("DateScanned","RightVerticalDistances","Right Vertical Distance Error","Right Vertical Distance Error (mm)"))
+    st.plotly_chart(MakePlot("DateScanned","LeftVerticalDistances","Left Vertical Distance Error","Left Vertical Distance Error (mm)","Geometric Accuracy","MagNetMethod"))
+    st.plotly_chart(MakePlot("DateScanned","MiddleVerticalDistances","Middle Vertical Distance Error","Middle Vertical Distance Error (mm)","Geometric Accuracy","MagNetMethod"))
+    st.plotly_chart(MakePlot("DateScanned","RightVerticalDistances","Right Vertical Distance Error","Right Vertical Distance Error (mm)","Geometric Accuracy","MagNetMethod"))
 
 st.divider()
 st.subheader("Spatial Resolution (Contrast Response)")
 option = st.selectbox("Choose a Resolution grid:", ["1.1mm", "1.0mm", "0.9mm", "0.8mm"])
 if option == "1.1mm":
-    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Horizontal","1.1mm grid Resolution Horizontal","1.1mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Vertical","1.1mm grid Resolution Vertical","1.1mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Horizontal","1.1mm grid Resolution Horizontal","1.1mm grid Resolution (%)","Contrast Response Resolution","1.1mm holes Horizontal"))
+    st.plotly_chart(MakePlot("DateScanned","1.1mm holes Vertical","1.1mm grid Resolution Vertical","1.1mm grid Resolution (%)","Contrast Response Resolution","1.1mm holes Vertical"))
 if option == "1.0mm":
-    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Horizontal","1.0mm grid Resolution Horizontal","1.0mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Vertical","1.0mm grid Resolution Vertical","1.0mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Horizontal","1.0mm grid Resolution Horizontal","1.0mm grid Resolution (%)","Contrast Response Resolution","1.0mm holes Horizontal"))
+    st.plotly_chart(MakePlot("DateScanned","1.0mm holes Vertical","1.0mm grid Resolution Vertical","1.0mm grid Resolution (%)","Contrast Response Resolution","1.0mm holes Vertical"))
 if option == "0.9mm":
-    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Horizontal","0.9mm grid Resolution Horizontal","0.9mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Vertical","0.9mm grid Resolution Vertical","0.9mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Horizontal","0.9mm grid Resolution Horizontal","0.9mm grid Resolution (%)","Contrast Response Resolution","0.9mm holes Horizontal"))
+    st.plotly_chart(MakePlot("DateScanned","0.9mm holes Vertical","0.9mm grid Resolution Vertical","0.9mm grid Resolution (%)","Contrast Response Resolution","0.9mm holes Vertical"))
 if option == "0.8mm":
-    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Horizontal","0.8mm grid Resolution Horizontal","0.8mm grid Resolution (%)"))
-    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Vertical","0.8mm grid Resolution Vertical","0.8mm grid Resolution (%)"))
+    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Horizontal","0.8mm grid Resolution Horizontal","0.8mm grid Resolution (%)","Contrast Response Resolution","0.8mm holes Horizontal"))
+    st.plotly_chart(MakePlot("DateScanned","0.8mm holes Vertical","0.8mm grid Resolution Vertical","0.8mm grid Resolution (%)","Contrast Response Resolution","0.8mm holes Vertical"))
