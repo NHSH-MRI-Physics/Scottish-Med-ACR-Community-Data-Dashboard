@@ -5,6 +5,7 @@ from scipy import stats
 import pandas as pd
 import requests
 import xmltodict
+import datetime
 st.set_page_config(initial_sidebar_state='collapsed',page_title="Scottish Medium ACR Community Dashboard")
 
 st.title("Scottish Med ACR Community Data Dashboard")
@@ -34,9 +35,22 @@ Weightings = st.sidebar.multiselect('Select Weighting', df['Weighting'].unique()
 st.sidebar.markdown("**Version:** 1.2 Beta")
 #st.sidebar.page_link("pages/Rawdata.py", label="Go to Raw Data")
 
+
 df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))& (df['FieldStrength'].isin(FieldStrength)) & (df['Coil'].isin(Coils)) & (df['Weighting'].isin(Weightings))]
 #st.write(df.head())
 
+DatesScanned = pd.to_datetime(df["DateScanned"], errors='coerce',dayfirst=True)
+d = st.date_input(
+    "Select date range for scan dates:",
+    (DatesScanned.min(),datetime.date.today()),
+    DatesScanned.min(),
+    datetime.date.today(),
+    format="DD.MM.YYYY",
+)
+try:
+    df = df[(DatesScanned >= pd.to_datetime(d[0])) & (DatesScanned <= pd.to_datetime(d[1]))]
+except:
+    st.warning("Please select a valid date range.")
 
 if df.empty:
     st.warning("No data available for the selected filters.")
