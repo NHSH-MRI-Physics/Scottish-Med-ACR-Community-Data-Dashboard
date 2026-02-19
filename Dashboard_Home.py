@@ -32,11 +32,12 @@ ScannerModel = st.sidebar.multiselect('Select Scanner Model', df['ScannerModel']
 FieldStrength = st.sidebar.multiselect('Select Field Strength', df['FieldStrength'].unique(), default=df['FieldStrength'].unique())
 Coils = st.sidebar.multiselect('Select Coil', df['Coil'].unique(), default=df['Coil'].unique())
 Weightings = st.sidebar.multiselect('Select Weighting', df['Weighting'].unique(), default=df['Weighting'].unique())
+Orientations = st.sidebar.multiselect('Orientation', df['Orientation'].unique(), default=df['Orientation'].unique())
 st.sidebar.markdown("**Version:** 1.2 Beta")
 #st.sidebar.page_link("pages/Rawdata.py", label="Go to Raw Data")
 
 
-df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))& (df['FieldStrength'].isin(FieldStrength)) & (df['Coil'].isin(Coils)) & (df['Weighting'].isin(Weightings))]
+df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution'].isin(Institution)) & (df['ScannerModel'].isin(ScannerModel))& (df['FieldStrength'].isin(FieldStrength)) & (df['Coil'].isin(Coils)) & (df['Weighting'].isin(Weightings)) & (df['Orientation'].isin(Orientations))]
 #st.write(df.head())
 
 DatesScanned = pd.to_datetime(df["DateScanned"], errors='coerce',dayfirst=True)
@@ -55,6 +56,7 @@ except:
 if df.empty:
     st.warning("No data available for the selected filters.")
     st.stop()
+
 
 def MakePlot(x,y,title,AxisTitle,module=None,test=None):
     tol_low = None
@@ -91,7 +93,7 @@ def MakePlot(x,y,title,AxisTitle,module=None,test=None):
     filtered_df[y] = pd.to_numeric(filtered_df[y], errors='coerce')
     filtered_df[x] = pd.to_datetime(filtered_df[x], errors='coerce',dayfirst=True)
 
-    fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence","FieldStrength","Coil","Weighting"])
+    fig = px.scatter(filtered_df, x=x, y=y, title=title,hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence","FieldStrength","Coil","Weighting","Orientation"])
     fig.update_xaxes(title_text="Scan Date")
     fig.update_yaxes(title_text=AxisTitle)
     avg = filtered_df[y].mean()
