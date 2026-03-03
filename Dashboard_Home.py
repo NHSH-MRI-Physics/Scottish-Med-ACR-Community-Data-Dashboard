@@ -41,10 +41,15 @@ df = df[(df['ScannerManufacturer'].isin(ScannerManufacturer)) & (df['Institution
 #st.write(df.head())
 
 DatesScanned = pd.to_datetime(df["DateScanned"], errors='coerce',dayfirst=True)
+if len(DatesScanned) == 0:
+    StartDate = datetime.date.today() - datetime.timedelta(days=365)    
+else:
+    StartDate = DatesScanned.min()
+
 d = st.date_input(
     "Select date range for scan dates:",
-    (DatesScanned.min(),datetime.date.today()),
-    DatesScanned.min(),
+    (StartDate,datetime.date.today()),
+    StartDate,
     datetime.date.today(),
     format="DD.MM.YYYY",
 )
