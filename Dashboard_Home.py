@@ -53,8 +53,11 @@ d = st.date_input(
     datetime.date.today(),
     format="DD.MM.YYYY",
 )
+
+DateTimeWithTime = [datetime.datetime(d[0].year, d[0].month, d[0].day, 0, 0, 0), datetime.datetime(d[1].year, d[1].month, d[1].day, 23, 59, 59)] #This is needec because  I think the datetime above gives out a datetime with time set to 00:00:00, meaning anything done after that on the day is missed..
 try:
-    df = df[(DatesScanned >= pd.to_datetime(d[0])) & (DatesScanned <= pd.to_datetime(d[1]))]
+    #df = df[(DatesScanned >= pd.to_datetime(d[0])) & (DatesScanned <= pd.to_datetime(d[1]))]
+    df = df[(DatesScanned >= DateTimeWithTime[0]) & (DatesScanned <= DateTimeWithTime[1])]
 except:
     st.warning("Please select a valid date range.")
 
