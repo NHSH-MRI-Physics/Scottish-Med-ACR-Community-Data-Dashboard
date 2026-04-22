@@ -12,7 +12,7 @@ st.title("Scottish Med ACR Community Data Dashboard")
 st.markdown("""
 This dashboard presents data collected from scottish centers using a medium ACR phantom and analysed using the [Scottish Medium ACR Phantom QA project](https://github.com/NHSH-MRI-Physics/Scottish-Medium-ACR-Analysis-Framework).
 
-Filters for the data can be found on the sidear (arrow the top left). You can view the raw data via the "View Rawdata" link also in the sidebar.
+Filters for the data can be found on the sidebar (arrow the top left). You can view the raw data via the "View Rawdata" link also in the sidebar.
 """)
 st.cache_data.clear()
 st.cache_resource.clear()
