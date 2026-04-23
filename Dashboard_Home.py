@@ -13,7 +13,31 @@ st.markdown("""
 This dashboard presents data collected from scottish centers using a medium ACR phantom and analysed using the [Scottish Medium ACR Phantom QA project](https://github.com/NHSH-MRI-Physics/Scottish-Medium-ACR-Analysis-Framework).
 
 Filters for the data can be found on the sidebar (arrow the top left). You can view the raw data via the "View Rawdata" link also in the sidebar.
+            
+The MRI quality assurance data contained within this dashboard is intended for use by qualified professionals. If you have any questions regarding the data on this site, please reach out to your local health board. 
 """)
+
+PASSWORD = st.secrets["PASSWORD"]
+
+def check_password():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+    if not st.session_state.authenticated:
+        st.markdown("### Please enter the password to access the dashboard")
+        st.markdown("*Contact John.Tracey@nhs.scot for the password*")
+        password = st.text_input("Enter password", type="password")
+        if password:
+            if password == PASSWORD:
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("Incorrect password")
+        return False
+    return True
+
+if not check_password():
+    st.stop()
+
 st.cache_data.clear()
 st.cache_resource.clear()
 conn = st.connection("gsheets", type=GSheetsConnection,ttl=1)
