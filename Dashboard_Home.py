@@ -17,25 +17,8 @@ Filters for the data can be found on the sidebar (arrow the top left). You can v
 The MRI quality assurance data contained within this dashboard is intended for use by qualified professionals. If you have any questions regarding the data on this site, please reach out to your local health board. 
 """)
 
-PASSWORD = st.secrets["PASSWORD"]
-
-def check_password():
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-    if not st.session_state.authenticated:
-        st.markdown("### Please enter the password to access the dashboard")
-        st.markdown("*Contact John.Tracey@nhs.scot for the password*")
-        password = st.text_input("Enter password", type="password")
-        if password:
-            if password == PASSWORD:
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("Incorrect password")
-        return False
-    return True
-
-if not check_password():
+import PasswordChecking
+if not PasswordChecking.check_password():
     st.stop()
 
 st.cache_data.clear()

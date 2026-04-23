@@ -5,6 +5,12 @@ from scipy import stats
 import pandas as pd
 
 st.title("Scottish Medium ACR Community Data Dashboard")
+
+from PasswordChecking import check_password
+if not check_password():
+    st.stop()
+
+
 st.markdown("""
 This page has the raw data used in the plots on the homepage.
 """)
