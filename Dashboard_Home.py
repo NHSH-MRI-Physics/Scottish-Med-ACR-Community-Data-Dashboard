@@ -40,6 +40,18 @@ FieldStrength = st.sidebar.multiselect('Select Field Strength', df['FieldStrengt
 Coils = st.sidebar.multiselect('Select Coil', df['Coil'].unique(), default=df['Coil'].unique())
 Weightings = st.sidebar.multiselect('Select Weighting', df['Weighting'].unique(), default=df['Weighting'].unique())
 Orientations = st.sidebar.multiselect('Orientation', df['Orientation'].unique(), default=df['Orientation'].unique())
+
+
+st.sidebar.header("Statisical Analysis Options")
+Statchoice = st.sidebar.radio(
+        "Select what boundary to display",
+        options=[ "Standard Deviation", "2 Standard Deviations", "3 Standard Deviations","95% Confidence Interval", "Custom Standard Deviations"]
+    )
+disabled = True
+if Statchoice == "Custom Standard Deviations":
+    disabled = False
+CustomSTD = st.sidebar.number_input("Custom number of standard deviations",disabled=disabled)
+
 st.sidebar.markdown("**Version:** 1.2 Beta")
 #st.sidebar.page_link("pages/Rawdata.py", label="Go to Raw Data")
 
@@ -113,8 +125,33 @@ def MakePlot(x,y,title,AxisTitle,module=None,test=None):
     fig.update_yaxes(title_text=AxisTitle)
     avg = filtered_df[y].mean()
     n = filtered_df[y].count()
+
     std_err = stats.sem(filtered_df[y], nan_policy='omit')
     conf_int = stats.t.interval(0.95, n-1, loc=avg, scale=std_err)
+
+    StandardDevRange = [avg-stats.tstd(filtered_df[y], nan_policy='omit'),avg+stats.tstd(filtered_df[y], nan_policy='omit')]
+    StandardDevRange2 = [avg-stats.tstd(filtered_df[y], nan_policy='omit')*2,avg+stats.tstd(filtered_df[y], nan_policy='omit')*2]
+    StandardDevRange3 = [avg-stats.tstd(filtered_df[y], nan_policy='omit')*3,avg+stats.tstd(filtered_df[y], nan_policy='omit')*3]
+    StandardDevRangeCustom = [avg-stats.tstd(filtered_df[y], nan_policy='omit')*CustomSTD,avg+stats.tstd(filtered_df[y], nan_policy='omit')*CustomSTD]
+
+    DisplayRange = None
+    Text = None
+    if Statchoice == "Standard Deviation":
+        DisplayRange = StandardDevRange
+        Text = "Standard Deviation"
+    if Statchoice == "2 Standard Deviations":
+        DisplayRange = StandardDevRange2
+        Text = "2 Standard Deviations"
+    if Statchoice == "3 Standard Deviations":
+        DisplayRange = StandardDevRange3
+        Text = "3 Standard Deviations"  
+    if Statchoice == "Custom Standard Deviations":
+        DisplayRange = StandardDevRangeCustom
+        Text = f"{CustomSTD} Standard Deviations"
+    if Statchoice == "95% Confidence Interval":
+        DisplayRange = conf_int
+        Text = "95% Confidence Interval"
+    
     fig.add_hline(
         y=avg,
         line_dash="dash",
@@ -124,17 +161,17 @@ def MakePlot(x,y,title,AxisTitle,module=None,test=None):
     )
 
     fig.add_hline(
-        y=conf_int[0],
+        y=DisplayRange[0],
         line_dash="dot",
         line_color="blue",
-        annotation_text=f"95% Confidence Interval: {conf_int[0]:.2f}",
+        annotation_text=f"{Text}: {DisplayRange[0]:.2f}",
         annotation_position="bottom left"
     )
     fig.add_hline(
-        y=conf_int[1],
+        y=DisplayRange[1],
         line_dash="dot",
         line_color="blue",
-        annotation_text=f"95% Confidence Interval: {conf_int[1]:.2f}",
+        annotation_text=f"{Text}: {DisplayRange[1]:.2f}",
         annotation_position="top right"
     )
 
