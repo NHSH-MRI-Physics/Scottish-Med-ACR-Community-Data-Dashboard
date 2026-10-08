@@ -10,9 +10,14 @@ from PasswordChecking import check_password
 if not check_password():
     st.stop()
 
+if 'HighlightedStudies' not in st.session_state:
+    st.session_state['HighlightedStudies'] = []
 
+if 'HighlightedStudies_rows' not in st.session_state:
+    st.session_state['HighlightedStudies_rows'] = []
+    
 st.markdown("""
-This page has the raw data used in the plots on the homepage.
+This page has the raw data used in the plots on the homepage. If you select a row in the table below it will be highlighted in the plots on the homepage, you can select multiple rows.
 """)
 conn = st.connection("gsheets", type=GSheetsConnection)
 df = conn.read()
@@ -32,4 +37,24 @@ if df.empty:
     st.warning("No data available for the selected filters.")
     st.stop()
 
-st.write(df)
+#st.write(df)
+
+event = st.dataframe(
+    df,
+    use_container_width=True,
+    hide_index=True,
+    on_select="rerun",
+    selection_mode="multi-row",
+    key="highlighted_df_widget",
+    selection_default={"selection": {"rows": st.session_state['HighlightedStudies_rows']}}
+)
+
+
+if event.selection and "rows" in event.selection:
+    st.session_state['HighlightedStudies_rows'] = event.selection["rows"]
+    st.session_state['HighlightedStudies'] = df.iloc[event.selection.rows]
+    
+#print( st.session_state['HighlightedStudies_rows'])
+#print(df.iloc[event.selection.rows])
+#st.session_state['HighlightedStudies'] = df.iloc[event.selection.rows]
+#print(st.session_state['HighlightedStudies'].index.tolist())

@@ -17,9 +17,14 @@ Filters for the data can be found on the sidebar (arrow the top left). You can v
 The MRI quality assurance data contained within this dashboard is intended for use by qualified professionals. If you have any questions regarding the data on this site, please reach out to your local health board. 
 """)
 
+
+
 import PasswordChecking
 if not PasswordChecking.check_password():
     st.stop()
+
+if 'HighlightedStudies' not in st.session_state:
+    st.session_state['HighlightedStudies'] = pd.DataFrame({"A": []})
 
 st.cache_data.clear()
 st.cache_resource.clear()
@@ -154,6 +159,42 @@ def MakePlot(x,y,title,AxisTitle,module=None,test=None):
             annotation_text=f"Tolerance Upper: {tol_high:.2f}",
             annotation_position="top right"
         )
+
+
+    if 'HighlightedStudies' in st.session_state and not st.session_state['HighlightedStudies'].empty:
+        highlight_df = st.session_state['HighlightedStudies'].copy()
+        
+        # Clean data types for the subset matching filtered_df
+        highlight_df = highlight_df[highlight_df[y] != "Not Run"]
+        highlight_df[y] = pd.to_numeric(highlight_df[y], errors='coerce')
+        highlight_df[x] = pd.to_datetime(highlight_df[x], errors='coerce', dayfirst=True)
+        
+        if not highlight_df.empty:
+            distinct_colors = ["magenta", "cyan", "lime", "orange", "yellow", "purple", "pink", "dodgerblue"]
+
+            labels = []
+            for i in range(len(highlight_df)):
+
+                string =" " + str(highlight_df.iloc[i]["Institution"]) + " " + str(highlight_df.iloc[i]["Coil"]) + " " + str(highlight_df.iloc[i]["Orientation"]) +"<br> Seq Name: " + str(highlight_df.iloc[i]["Sequence"])+ "<br> Weighting: " + str(highlight_df.iloc[i]["Weighting"])
+                labels.append(string)
+
+            #highlight_df['Unique_Label'] = [f"Highlight {i+1}" for i in range(len(highlight_df))]
+            highlight_df['Unique_Label'] = labels
+            highlight_fig = px.scatter(
+                highlight_df, 
+                x=x, 
+                y=y, 
+                hover_data=["ScannerManufacturer","Institution","ScannerModel","ScannerSerialNumber","Sequence","FieldStrength","Coil","Weighting","Orientation"],
+                color='Unique_Label',
+                color_discrete_sequence=distinct_colors
+            )
+
+            for trace in highlight_fig.data:
+                trace.marker.symbol = "star"     # Keep a unique star symbol for all highlights
+                trace.marker.size = 14           # Make them larger so they pop out
+                trace.marker.line = dict(color="black", width=1) # Border outline for contrast
+                fig.add_trace(trace)
+
     return fig
 
 st.subheader("SNR")
